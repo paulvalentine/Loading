@@ -1,48 +1,37 @@
 # module to calculate loading on structures
 
+import xlrd
+
 class BasicLoading:
-    def __init__(self, loads, refs, nature):
+    def __init__(self, loads, refs):
         self.loads=loads
-        self.refs=refs
-        self.nature=nature
+        self.refs=refs # and array of strings to reference the components
+        self.nature=loads[0] # first element in the array to be a string to give nature
 
     def results(self):
         text='The basic {} loadings used in the design are:'.format(self.nature)
-        for i in range(0,len(self.loads)):
-            text=text+'\n{} = {} kN/m2'.format(self.refs[i],self.loads[i])
+        for i in range(1,len(self.loads)):
+            text=text+'\n{} = {} kN/m2'.format(self.refs[i-1],self.loads[i])
 
         return text+'\n'
 
 class Udl:
-    def __init__(this, basicdead, basicimposed, lengths, ref):
-        this.basic_loading_dead = basicdead
-        this.basic_loading_imposed = basicimposed
-        this.load_lengths = lengths
-        this.dead_load = this.calc_load(basicdead,lengths)
-        this.imposeed_load = this.calc_load(basicimposed,lengths)
-        this.imposed_load=this.calc_imposed_load()
-        this.ref = ref
+    def __init__(self, loads, lengths): # loads here is the full object from basic loading
+        self.load = self.calc_load(loads.loads,lengths)
+        self.ref = lengths[0] # first element of the array to be a string to reference the loading
+        self.nature = loads.nature
 
-    def calc_load(this, loads, lengths):
+    # method for calculating the udl
+    def calc_load(self, loads, lengths):
+        ld = 0
+        for i in range(1, len(loads)):
+            ld = ld + loads[i]*lengths[i]
 
-        # could do with a error check on the length of the array
-        load =0;
-        for i in range(0,len(loads)):
-            load = load + loads[i]*lengths[i]
-        return load
-        
+
+        return ld
 
 
 
-    def report(self):
-
-        a = '''Load ref:{}
-The dead load = {} kN/m
-The imposed load = {} kN/m
-The sls load = {} kN/m
-The uls load = {} kN/m \n
-'''.format(self.ref,self.calc_dead_load(),self.calc_imposed_load(),self.calc_sls_load(),self.calc_uls_load())
-        return a
 
 class Point:
 
